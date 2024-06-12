@@ -1,3 +1,6 @@
+/*
+ * Clase para manejar la informacion de Profesional
+ */
 package entidades;
 /**
  *
