@@ -62,6 +62,31 @@ public abstract class Conexion {
         this.fileConect = fileConect;
     }
 
+    public boolean isLoadFileCofig() {
+        //para cargar la informacion del archivo
+        boolean isOk = getFileConect().loadFile();
+        if (!isOk) {
+            //sino puede cargar intenta crear el archivo
+            isOk = getFileConect().createFile();
+        }
+        if (isOk) {
+            isOk = false;
+            if (getFileConect().loadFile()) {
+                //si puede cargar el archivo, isOk lo pongo en false para continuar
+                //evaluado el metodo y saber si va a ser exitoso
+
+                //Accedo y cargo la informacion del archivo con el metodo getValorPropiedad
+                this.servidor = getFileConect().getValorPropiedad("hostname");
+                this.DB = getFileConect().getValorPropiedad("nameDB");
+                this.puerto = getFileConect().getValorPropiedad("port");
+                this.usuario = getFileConect().getValorPropiedad("user");
+                this.pws = this.getEncry().desencrypt(getFileConect().getValorPropiedad("pws").trim());
+                this.URL = "jdbc:mysql://" + servidor + ":" + puerto + "/" + DB + "?" + "user=" + usuario + "&password=" + pws; // Direccion que se para
+            }
+        }
+        return isOk;
+    }
+
     /**
      * Metodo que devuelve verdadero si se puede crear un Objeto Connection
      *
@@ -69,7 +94,7 @@ public abstract class Conexion {
      */
     public boolean isOkConexion() {
         Connection cn = null;
-        boolean isOk = isOkFileCofigConexion();
+        boolean isOk = isLoadFileCofig();
         try {
             Class.forName(DRIVER).newInstance(); // para saber si el driver esta y se puede cargar
             cn = DriverManager.getConnection(URL); // Genera un objeto connexion
